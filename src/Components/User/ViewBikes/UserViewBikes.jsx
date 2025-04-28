@@ -207,7 +207,7 @@ function UserViewBikes() {
   return (
     <div className=' max-w-[1600px] bg-black'>
       <Navbar />
-      <div className='flex justify-center  items-center py-3'>
+      <div className='flex justify-center  items-center py-3 mt-20'>
 
         <div className='flex flex-row justify-between  bg-white rounded-lg w-[95%]'>
           <div className="flex flex-row mb-1 sm:mb-0 h-[54px] py-2 px-1  ">
