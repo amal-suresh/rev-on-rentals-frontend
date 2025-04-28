@@ -23,7 +23,7 @@ function Navbar() {
   };
 
   return (
-    <header className="bg-black w-full shadow-md fixed top-0 z-50">
+    <header className="bg-black w-full shadow-md fixed top-0 z-50 ">
       <nav className="max-w-[1500px] w-[92%] mx-auto flex justify-between items-center h-[5rem]">
         {/* Left: Logo */}
         <div className="flex items-center gap-4">

@@ -162,7 +162,7 @@ function PartnerProfile() {
 
 
     return (
-        <div>
+        <div className=''>
             <div className={`mx-auto flex w-full ${!isOpen ? 'justify-start' : 'justify-between'} `}>
                 <div className={`${!isOpen ? 'none' : 'block'}`}>
                     <SideBarPartner isOpen={isOpen} />

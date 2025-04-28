@@ -84,7 +84,7 @@ function DashBoardPartner() {
   // })
 
   return (
-    <div>
+    <div className='bg-white'>
       <div className={`mx-auto flex w-full ${!isOpen ? 'justify-start' : 'justify-between'} `}>
         <div className={`${!isOpen ? 'none' : 'block'}`}>
           <SideBarPartner isOpen={isOpen} />
