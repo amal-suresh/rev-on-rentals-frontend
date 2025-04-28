@@ -1,80 +1,96 @@
-import React, { useState} from 'react'
-import { useNavigate } from 'react-router-dom'
-import logo from '../../../images/new-logo-rev-on.png'
-import logo1 from '../../../images/rev-on-text.png'
-import { GrMenu, GrClose } from 'react-icons/gr'
-import { useSelector } from 'react-redux'
-import {BiLogOut} from 'react-icons/bi'
-import { useDispatch } from 'react-redux'
-import { removeUser} from '../../../utils/userSlice'
-
-
-
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from '../../../images/new-logo-rev-on.png';
+import { GrMenu, GrClose } from 'react-icons/gr';
+import { useSelector, useDispatch } from 'react-redux';
+import { BiLogOut } from 'react-icons/bi';
+import { removeUser } from '../../../utils/userSlice';
 
 function Navbar() {
-  const dispatch =useDispatch()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector(store => store.user.userD);
 
-  const [toggleState, setToggleState] = useState(false);
-  const [navLink, setNavLink] = useState('')
-  const navigate=useNavigate('')
-  const user = useSelector(store=>store.user.userD)
+  const [menuOpen, setMenuOpen] = useState(false);
 
-const handleLogout=()=>{
-  dispatch(removeUser())
-  localStorage.removeItem('token')
-}
-    
+  const handleLogout = () => {
+    dispatch(removeUser());
+    localStorage.removeItem('token');
+  };
 
-
-  const handleBtnClick = () => {
-    setToggleState(!toggleState)
-    toggleState ? setNavLink('') : setNavLink('top-[9.9%]')
-  }
-
+  const toggleMenu = () => {
+    setMenuOpen(prev => !prev);
+  };
 
   return (
-
-    <header className='bg-black w-full flex justify-center '>
-      <nav className='bg-black max-w-[1500px] flex justify-between items-center h-[5rem] w-[92%] mx-auto'>
-        <div className='flex items-center'>
-          <img className='w-16 rounded-full' src={logo} alt="logo" />
-          <p className='text-white font-bold text-[2.5rem] pl-4 hidden md:block hover:cursor-pointer font-passion tracking-wider'>REV-ON-RENTALS</p>
-          {/* <img className='hidden md:block ml-5 w-44 h-13 hover:cursor-pointer' src={logo1} alt="logo" /> */}
+    <header className="bg-black w-full shadow-md fixed top-0 z-50">
+      <nav className="max-w-[1500px] w-[92%] mx-auto flex justify-between items-center h-[5rem]">
+        {/* Left: Logo */}
+        <div className="flex items-center gap-4">
+          <img src={logo} alt="logo" className="w-14 h-14 rounded-full cursor-pointer" onClick={() => navigate('/')} />
+          <h1 className="text-white font-bold text-2xl sm:text-3xl font-passion tracking-wider cursor-pointer hidden md:block">
+            REV-ON-RENTALS
+          </h1>
         </div>
-        <div className={`${navLink} z-10 bg-black  md:static md:min-h-fit md:w-auto absolute min-h-[50vh] left-0 top-[-100%] w-full flex items-center px-5`}>
-          <ul className='flex md:flex-row flex-col items-center md:gap-[4vw] gap-8'>
-            <li>
-              <p onClick={()=>navigate('/')} className='hover:text-yellow-400 text-yellow-300 hover:cursor-pointer font-semibold'>Home</p>
-            </li>
-            <li>
-              <p  onClick={()=>navigate('/tariff')} className='hover:text-yellow-400 text-yellow-300 hover:cursor-pointer font-semibold'>Tariff</p>
-            </li>
-            <li>
-              <p onClick={()=>navigate('/join-us')}  className='hover:text-yellow-400 text-yellow-300 hover:cursor-pointer font-semibold'>Join us</p>
-            </li>
-            <li>
-              <p  onClick={()=>navigate('/offers')} className='hover:text-yellow-400 text-yellow-300 hover:cursor-pointer font-semibold'>Offers</p>
-            </li>
-            <li>
-              <p  onClick={()=>navigate('/viewBikes')} className='hover:text-yellow-400 text-yellow-300 hover:cursor-pointer font-semibold'>Bikes</p>
-            </li>
-           {user.name && <li>
-              <p  onClick={handleLogout} className='hover:text-yellow-400 text-yellow-300 hover:cursor-pointer font-semibold'><BiLogOut/></p>
-            </li>}
 
-          </ul>
+        {/* Center: Nav Links */}
+        <ul
+          className={`${
+            menuOpen ? 'top-[5rem]' : 'top-[-100%]'
+          } md:static absolute left-0 w-full md:w-auto bg-black md:bg-transparent transition-all duration-300 ease-in-out flex flex-col md:flex-row items-center md:gap-8 gap-6 p-6 md:p-0 text-yellow-300 font-semibold z-40`}
+        >
+          <li className="cursor-pointer hover:text-yellow-400" onClick={() => navigate('/')}>Home</li>
+          <li className="cursor-pointer hover:text-yellow-400" onClick={() => navigate('/tariff')}>Tariff</li>
+          <li className="cursor-pointer hover:text-yellow-400" onClick={() => navigate('/join-us')}>Join us</li>
+          <li className="cursor-pointer hover:text-yellow-400" onClick={() => navigate('/offers')}>Offers</li>
+          <li className="cursor-pointer hover:text-yellow-400" onClick={() => navigate('/viewBikes')}>Bikes</li>
+          {user.name && (
+            <li
+              className="cursor-pointer hover:text-yellow-400 flex items-center gap-1"
+              onClick={handleLogout}
+            >
+              <BiLogOut size={20} /> Logout
+            </li>
+          )}
+        </ul>
 
-        </div>
-        <div className='flex items-center gap-6'>
-          {!user.name?<button className='bg-white text-yellow-400 px-5 py-2 rounded-md hover:bg-black hover:text-white ' onClick={()=>navigate('/login')}>Login</button>:<button className='hover:text-yellow-400 text-yellow-300 font-semibold' onClick={()=>navigate("/userProfile")}>{user.name}</button>}
-          {!toggleState ? <GrMenu className=' bg-yellow-300 cursor-pointer md:hidden' onClick={handleBtnClick} style={{ fontSize: "2rem" }} /> : <GrClose className='bg-yellow-300 cursor-pointer md:hidden ' onClick={handleBtnClick} style={{ fontSize: "2rem" }} />}
+        {/* Right: Login / Profile & Hamburger */}
+        <div className="flex items-center gap-4">
+          {!user.name ? (
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-yellow-400 text-black px-4 py-1.5 rounded-full hover:bg-white hover:text-yellow-500 transition"
+            >
+              Login
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/userProfile')}
+              className="text-yellow-300 hover:text-yellow-400 font-semibold"
+            >
+              {user.name}
+            </button>
+          )}
 
-
-
+          <div className="md:hidden">
+            {!menuOpen ? (
+              <GrMenu
+                onClick={toggleMenu}
+                className="text-yellow-300 cursor-pointer"
+                style={{ fontSize: '1.8rem' }}
+              />
+            ) : (
+              <GrClose
+                onClick={toggleMenu}
+                className="text-yellow-300 cursor-pointer"
+                style={{ fontSize: '1.8rem' }}
+              />
+            )}
+          </div>
         </div>
       </nav>
     </header>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

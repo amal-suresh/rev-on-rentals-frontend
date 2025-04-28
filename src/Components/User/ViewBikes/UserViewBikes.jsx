@@ -6,30 +6,31 @@ import { userApi } from "../../../config/api"
 import toast from 'react-hot-toast'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 
 
 
 function UserViewBikes() {
   const navigate = useNavigate()
 
-  const user = useSelector(store=>store.user.userD)
-
+  const user = useSelector(store => store.user.userD)
+  const [loading, setLoading] = useState(false);
   const [obj, setObj] = useState([])
   const [sort, setSort] = useState("")
   const [filterCat, setFilterCate] = useState("")
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [totalPages, setTotalPages] = useState(0)
-  const [availableLocations,setAvailableLocations]=useState([])
-  const [forCheckAvailability,setForCheckAvailability]=useState({
-      city:"",
-      pickUpDate:"",
-      pickUpTime:"",
-      dropDate:"",
-      dropTime:""
-  })  
+  const [availableLocations, setAvailableLocations] = useState([])
+  const [forCheckAvailability, setForCheckAvailability] = useState({
+    city: "",
+    pickUpDate: "",
+    pickUpTime: "",
+    dropDate: "",
+    dropTime: ""
+  })
 
-  const [errorValidation,setValidationError]=useState('')
+  const [errorValidation, setValidationError] = useState('')
 
 
 
@@ -47,175 +48,159 @@ function UserViewBikes() {
     setSort(value)
   }
 
-  
+
   const handleSearch = (e) => {
     const { value } = e.target
     setSearch(value)
   }
 
-  const findCities =async(req,res)=>{
+  const findCities = async (req, res) => {
     try {
-      const response =await Axios.get(`${userApi}retriveCities`)
-      if( response.data.success){
+      const response = await Axios.get(`${userApi}retriveCities`)
+      if (response.data.success) {
         setAvailableLocations(response.data.data)
       }
     } catch (error) {
-      
+
     }
   }
 
-//  ----------------------------------------------------
+  //  ----------------------------------------------------
 
 
-const handleCheckAvail = async (e) => {
-  const { name, value } = e.target;
-  setForCheckAvailability((prevState) => ({
-    ...prevState,
-    [name]: value
-  }));
-}
-
-
-const validation =()=>{
-  console.log(forCheckAvailability);
-
-
-  if(!forCheckAvailability.city){
-    setValidationError("City is required");
-    return
-  }
-  if(!forCheckAvailability.pickUpDate){
-    setValidationError("pick up date is required");
-    return
-  }
-  if(!forCheckAvailability.pickUpTime){
-    setValidationError("pick up Time is required");
-    return
-  }
-  if(!forCheckAvailability.dropDate){
-    setValidationError("drop date is required");
-    return
-  }
-  if(!forCheckAvailability.dropTime){
-    setValidationError("drop time is required");
-    return
+  const handleCheckAvail = async (e) => {
+    const { name, value } = e.target;
+    setForCheckAvailability((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
   }
 
-  // Check if the selected date is prior to the current date
-  const currentDate = new Date();
-  const selectedDate = new Date(forCheckAvailability.pickUpDate);
 
-  if (selectedDate < currentDate) {
-    setValidationError("pick up date cannot be prior to today.");
-    return; // Exit the function to prevent updating the state
-  }
-
-  // Validate pickup and drop dates
-  const pickUpDate = new Date(forCheckAvailability.pickUpDate);
-  const dropDate = new Date(forCheckAvailability.dropDate);
-
-  if (pickUpDate > dropDate) {
-    setValidationError("Drop date cannot be earlier than pickup date.");
-    return; // Exit the function to prevent updating the state
-  }
-
-  // Validate pickup and drop times
-  if (
-    forCheckAvailability.pickUpDate === forCheckAvailability.dropDate &&
-    forCheckAvailability.pickUpTime === forCheckAvailability.dropTime
-  ) {
-    setValidationError("Pickup and drop times cannot be the same.");
-    return; // Exit the function to prevent updating the state
-  }
-
-  // If all validations pass, clear the validation error
-  setValidationError("");
-};
+  const validation = () => {
+    console.log(forCheckAvailability);
 
 
-
-const getAllBikes = async () => {
-  try {
-    
-    const response = await Axios.get(`${userApi}getBikes?page=${page}&sort=${sort}&category=${filterCat}&search=${search}&city=${forCheckAvailability.city}&pickUpDate=${forCheckAvailability.pickUpDate}&pickUpTime=${forCheckAvailability.pickUpTime}&dropDate=${forCheckAvailability.dropDate}&dropTime=${forCheckAvailability.dropTime}`)
-    if (response.data.success) {
-      setObj(response.data.data.bikes)
-      setPage(response.data.data.page)
-      setTotalPages(response.data.data.totalPages)
-    }
-
-  } catch (error) {
-
-  }
-}
-
-
-
-
-
-
-
-
-const handleApply=async(req,res)=>{
- 
-    if(errorValidation){
-      toast.error(errorValidation) 
+    if (!forCheckAvailability.city) {
+      setValidationError("City is required");
       return
-    }else if(!errorValidation &&
+    }
+    if (!forCheckAvailability.pickUpDate) {
+      setValidationError("pick up date is required");
+      return
+    }
+    if (!forCheckAvailability.pickUpTime) {
+      setValidationError("pick up Time is required");
+      return
+    }
+    if (!forCheckAvailability.dropDate) {
+      setValidationError("drop date is required");
+      return
+    }
+    if (!forCheckAvailability.dropTime) {
+      setValidationError("drop time is required");
+      return
+    }
+
+    // Check if the selected date is prior to the current date
+    const currentDate = new Date();
+    const selectedDate = new Date(forCheckAvailability.pickUpDate);
+
+    if (selectedDate < currentDate) {
+      setValidationError("pick up date cannot be prior to today.");
+      return; // Exit the function to prevent updating the state
+    }
+
+    // Validate pickup and drop dates
+    const pickUpDate = new Date(forCheckAvailability.pickUpDate);
+    const dropDate = new Date(forCheckAvailability.dropDate);
+
+    if (pickUpDate > dropDate) {
+      setValidationError("Drop date cannot be earlier than pickup date.");
+      return; // Exit the function to prevent updating the state
+    }
+
+    // Validate pickup and drop times
+    if (
+      forCheckAvailability.pickUpDate === forCheckAvailability.dropDate &&
+      forCheckAvailability.pickUpTime === forCheckAvailability.dropTime
+    ) {
+      setValidationError("Pickup and drop times cannot be the same.");
+      return; // Exit the function to prevent updating the state
+    }
+
+    // If all validations pass, clear the validation error
+    setValidationError("");
+  };
+
+
+
+  const getAllBikes = async () => {
+    try {
+      setLoading(true);
+      const response = await Axios.get(`${userApi}getBikes?page=${page}&sort=${sort}&category=${filterCat}&search=${search}&city=${forCheckAvailability.city}&pickUpDate=${forCheckAvailability.pickUpDate}&pickUpTime=${forCheckAvailability.pickUpTime}&dropDate=${forCheckAvailability.dropDate}&dropTime=${forCheckAvailability.dropTime}`)
+      if (response.data.success) {
+        setObj(response.data.data.bikes)
+        setPage(response.data.data.page)
+        setTotalPages(response.data.data.totalPages)
+      }
+
+    } catch (error) {
+      console.error(error);
+
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+
+
+
+
+
+
+  const handleApply = async (req, res) => {
+
+    if (errorValidation) {
+      toast.error(errorValidation)
+      return
+    } else if (!errorValidation &&
       forCheckAvailability.city &&
       forCheckAvailability.pickUpDate &&
       forCheckAvailability.pickUpTime &&
       forCheckAvailability.dropDate &&
       forCheckAvailability.dropTime
-      ){
-        getAllBikes()
+    ) {
+      getAllBikes()
       toast.success("changes applied")
     }
-}
+  }
 
 
-const handleBooking =async(id)=>{
-  try {
-    console.log("booking");
-    
-      console.log(id);
-      const token =user.token
-      console.log(token);
+  const handleBooking = async (id) => {
+    try {
+
       const updatedData = {
         ...forCheckAvailability,
         bike: id,
       };
-      if(!errorValidation){
-        navigate('/checkOut',{state:{updatedData}})
-            
-      }else{
+      if (!errorValidation) {
+        navigate('/checkOut', { state: { updatedData } })
+
+      } else {
         toast.error("select all the feilds")
       }
-    
-      // const response =await Axios.post(`${userApi}booking`,updatedData,{
-      //   headers: {
-      //     Authorization: `Bearer ${token}`
-      // }
-      // })
-      // if(response.data.success){
-      //   toast.success(response.data.message)
-      // }else{
-      //   toast.error(response.data.message)
-      // }
-  } catch (error) {
-    
+    } catch (error) {
+
+    }
   }
-}
 
   useEffect(() => {
     validation()
     findCities()
-   
-
-  
-
     getAllBikes()
-  }, [sort, filterCat, search, page,forCheckAvailability])
+  }, [sort, filterCat, search, page, forCheckAvailability])
 
 
 
@@ -290,12 +275,12 @@ const handleBooking =async(id)=>{
                 onChange={handleCheckAvail}
                 className=" appearance-none h-full rounded-r  sm:rounded-r-none sm:border-r-0 block  w-full bg-white text-gray-700 py-2 px-4 pr-8 leading-tight focus:outline-none  focus:bg-white ">
                 <option value="">Select</option>
-                {availableLocations && availableLocations.map((name)=>{
+                {availableLocations && availableLocations.map((name) => {
                   return (
                     <option key={name} value={name}>{name}</option>
                   )
                 })}
-                
+
               </select>
               <div
                 className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -306,9 +291,9 @@ const handleBooking =async(id)=>{
             </div>
           </div>
 
-          
+
         </div>
-        
+
 
       </div>
 
@@ -319,7 +304,7 @@ const handleBooking =async(id)=>{
           <div className='flex justify-evenly w-full md:w-[50%] items-center my-2 '>
             <p className='w-[20%] text-sm font-bold'>FROM :</p>
             <div className='w-[40%]'>
-              <input name="pickUpDate"  onChange={handleCheckAvail} className='h-[37px] p-2' type="date" /> 
+              <input name="pickUpDate" onChange={handleCheckAvail} className='h-[37px] p-2' type="date" />
             </div>
 
             <div className="relative">
@@ -358,7 +343,7 @@ const handleBooking =async(id)=>{
           <div className='flex w-full md:w-[50%] justify-evenly items-center'>
             <p className='w-[18%] text-sm font-bold'>TO :</p>
             <div className='w-[40%]'>
-              <input name='dropDate'  onChange={handleCheckAvail} className='h-[37px] p-2' type="date" />
+              <input name='dropDate' onChange={handleCheckAvail} className='h-[37px] p-2' type="date" />
             </div>
 
             <div className="relative">
@@ -398,41 +383,60 @@ const handleBooking =async(id)=>{
 
 
       </div>
-
       <div className='w-full flex justify-center'>
-        <div className='grid  grid-cols-1 px- sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 max-w-[1500px]'>
-
-
-          {obj && obj.map((bike) => {
-            return (
-              <div key={bike._id} className='p-1 m-1 rounded border-2 border-gray-900  bg-yellow-300'>
-                <div className='flex w-full justify-center'>
-                  <p className='font-semibold'>{bike.name}</p>
-                </div>
-
-                <div className="block rounded-lg bg-gray-500">
-                  <div className="relative overflow-hidden bg-cover bg-no-repeat" >
-                    <img className="rounded-t-lg relative"
-                      src={`${bike.image[0]}`}
-                      alt="..." />
-
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-[1500px] px-2'>
+          {loading ? (
+            <p className="text-gray-700 font-semibold text-xl py-10">Loading...</p>
+          ) : (
+            <AnimatePresence>
+              {obj.map((bike, index) => (
+                <motion.div
+                  key={bike._id}
+                  className='p-1 m-1 rounded-xl border-2 border-gray-900 bg-yellow-300'
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                >
+                  <div className='flex w-full justify-center'>
+                    <p className='font-semibold'>{bike.name}</p>
                   </div>
-                  <div className='px-2 text-white font-semibold'>
-                    <p>Amount {bike.rentPerHour} Per Hour </p>
-                    <p>Engine {bike.engineCC} CC </p>
-                  </div>
-                  <div className="p-1">
-                    {user?.token? <button onClick={()=>handleBooking(bike._id)} className="w-full rounded font-bold py-1 hover:bg-black hover:text-yellow-400 bg-yellow-400">BOOK NOW</button>: <button onClick={()=>navigate("/login")} className="w-full rounded font-bold py-1 hover:bg-black hover:text-yellow-400 bg-yellow-400">BOOK NOW</button>}
-                  </div>
-                </div>
-              </div>
-            )
-          })
-          }
 
-
+                  <div className="block rounded-lg bg-gray-500">
+                    <div className="relative overflow-hidden bg-cover bg-no-repeat">
+                      <img
+                        className="rounded-t-lg relative"
+                        src={bike.image[0]}
+                        alt={bike.name}
+                      />
+                    </div>
+                    <div className='px-2 text-white font-semibold'>
+                      <p>Amount {bike.rentPerHour} Per Hour</p>
+                      <p>Engine {bike.engineCC} CC</p>
+                    </div>
+                    <div className="p-1">
+                      {user?.token ? (
+                        <button
+                          onClick={() => handleBooking(bike._id)}
+                          className="w-full rounded font-bold py-1 hover:bg-black hover:text-yellow-400 bg-yellow-400"
+                        >
+                          BOOK NOW
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => navigate("/login")}
+                          className="w-full rounded font-bold py-1 hover:bg-black hover:text-yellow-400 bg-yellow-400"
+                        >
+                          BOOK NOW
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
         </div>
-
       </div>
       <div className='max-w-[1600px] bg-gray-500 flex justify-center'>
         {totalPages > 0 &&

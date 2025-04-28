@@ -1,127 +1,176 @@
-import React,{useState,useRef, useEffect} from 'react'
-import { useLocation,useNavigate } from 'react-router-dom'
-import  Axios  from 'axios'
+import React, { useState, useRef, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
-import { userApi } from '../../../config/api'
-import {PiClockCountdownFill} from 'react-icons/pi'
-import { forgetPasswordNewpass ,forgePasswordResendOtp} from '../../../config/clientEndPoints'
+import { PiClockCountdownFill } from 'react-icons/pi'
+import { forgetPasswordNewpass, forgePasswordResendOtp } from '../../../config/clientEndPoints'
 
 function UserNewPassOtp() {
- 
-  let [count, setCount] = useState(5)
-  const location =useLocation()
-  const navigate =useNavigate()
-  const userData=location.state.formValues
-  const inputRef =useRef({})
-  const [otp,setOtp]=useState({
-    digitOne:"",
-    digitTwo:"",
-    digitThree:"",
-    digitFour:""
+  const [count, setCount] = useState(5)
+  const [loading, setLoading] = useState(false)
+  const [otp, setOtp] = useState({
+    digitOne: "",
+    digitTwo: "",
+    digitThree: "",
+    digitFour: ""
   })
 
-  useEffect(()=>{
-    inputRef.current[0].focus()
-    inputRef.current[0].addEventListener("paste",pasteText);
-    const countDownTimer = setInterval(() => {
-      if (count >= 0) {
-        setCount(count--)
-      } else {
-        clearInterval(countDownTimer)
-      }
-    },500);
-    return () => clearInterval(countDownTimer)
-  },[count])
+  const inputRef = useRef({})
+  const location = useLocation()
+  const navigate = useNavigate()
+  const userData = location?.state?.formValues
 
-  const pasteText =(e)=>{
-   const pastedText= e.clipboardData.getData("text")
-   const feildValues ={}
-   Object.keys(otp).forEach((keys,index)=>{
-    feildValues[keys]=pastedText[index]
-   })
-   setOtp(feildValues)
-   inputRef.current[3].focus()
+  useEffect(() => {
+    inputRef.current[0]?.focus()
+    inputRef.current[0]?.addEventListener("paste", pasteText)
+
+    const timer = setInterval(() => {
+      setCount((prev) => {
+        if (prev === 0) {
+          clearInterval(timer)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const pasteText = (e) => {
+    const pastedText = e.clipboardData.getData("text").slice(0, 4)
+    if (!/^\d{4}$/.test(pastedText)) return
+
+    const fields = {}
+    Object.keys(otp).forEach((key, index) => {
+      fields[key] = pastedText[index]
+    })
+
+    setOtp(fields)
+    inputRef.current[3]?.focus()
   }
 
-  const handleChange =(e,index)=>{
-    const {name,value}=e.target
-    if(/[a-z]/gi.test(value))return;
-    setOtp((prev)=>({
-      ...prev,[name]:value?.slice(-1),
+  const handleChange = (e, index) => {
+    const { name, value } = e.target
+    if (!/^\d?$/.test(value)) return
+
+    setOtp((prev) => ({
+      ...prev,
+      [name]: value
     }))
-    if(value && index < 3){
-        inputRef.current[index+1].focus()
+
+    if (value && index < 3) {
+      inputRef.current[index + 1]?.focus()
     }
   }
 
-  const handleBackSpace=(e,index)=>{
-    if(e.key==='Backspace'){
-      if(index > 0){
-        inputRef.current[index-1].focus()
-      }
+  const handleBackSpace = (e, index) => {
+    if (e.key === 'Backspace' && !otp[`digit${index + 1}`] && index > 0) {
+      inputRef.current[index - 1]?.focus()
     }
   }
 
-  const renderInput = ()=>{
-    return Object.keys(otp).map((keys,index)=>(
-    <input 
-        ref={(element)=>(inputRef.current[index]=element)}
+  const renderInput = () => {
+    return Object.keys(otp).map((key, index) => (
+      <input
+        key={index}
+        name={key}
         type="text"
-        key={index} 
-        name={keys} 
-        value={otp[keys]}
-        className='w-16 h-12 text-center text-black rounded-md mr-3 bg-yellow-300 text-xl'
-        onChange={(e)=>handleChange(e,index)}
-        onKeyUp={(e)=>handleBackSpace(e,index)}
-        />
-      ))
+        maxLength="1"
+        ref={(el) => (inputRef.current[index] = el)}
+        value={otp[key]}
+        onChange={(e) => handleChange(e, index)}
+        onKeyUp={(e) => handleBackSpace(e, index)}
+        className="w-14 h-12 text-center text-black rounded-md mx-1 bg-white text-2xl outline-none focus:ring-2 focus:ring-yellow-500"
+      />
+    ))
   }
 
-  const handleSubmit=async(e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const joinedOtp = Object.values(otp).join("");
-    if(joinedOtp.length===4){
-      const response =await forgetPasswordNewpass(userData,joinedOtp)
-      if(response.data.success){
+    const joinedOtp = Object.values(otp).join("")
+    if (joinedOtp.length === 4) {
+      setLoading(true)
+      const response = await forgetPasswordNewpass(userData, joinedOtp)
+      setLoading(false)
+
+      if (response.data.success) {
         toast.success(response.data.message)
         navigate('/login')
-      }else{
+      } else {
         toast.error(response.data.message)
       }
-    }else{
+    } else {
+      toast.error("Please enter complete OTP")
     }
   }
 
-  const handleResend=async()=>{
+  const handleResend = async () => {
     try {
-      const response =await forgePasswordResendOtp(userData)
-      if(response.data.success){
+      const response = await forgePasswordResendOtp(userData)
+      if (response.data.success) {
         setCount(5)
         toast.success(response.data.message)
-      }else{
+      } else {
         toast.error(response.data.message)
       }
     } catch (error) {
+      toast.error("Something went wrong")
     }
   }
 
   return (
-    <div className='flex justify-center items-center w-screen h-screen  bg-yellow-300  py-12'>
-        <div className='w-[22rem] h-[20rem] bg-black flex justify-center items-center rounded-lg'>
-        <form onSubmit={handleSubmit} >
-            <h3 className='text-3xl text-center text-yellow-400 my-4'>Enter Otp Here</h3>
-            <div className='flex justify-center '>
-              {renderInput()}
-            </div>
-            <div  className='flex justify-center mt-10'>
-                <button className='bg-black font-semibold border text-yellow-400 py-2 px-5 rounded-lg hover:bg-yellow-400 hover:text-black  ' type='submit'>Verify</button>
-            </div>
-            <div className='flex justify-center pt-4'> <h2 className='text-white'>{count===0?<span className='text-white font-bold underline cursor-pointer' onClick={handleResend}>resend</span>:<div className='flex justify-center items-center'><span className='pr-1 text-yellow-300 '><PiClockCountdownFill size={22}/></span><span className='text-red-600 font-bold text-2xl'>{count}</span></div>}</h2></div>
+    <div className="flex justify-center items-center w-screen h-screen bg-yellow-300 relative">
+      <div className="absolute w-full h-full bg-black opacity-60"></div>
+
+      <div className="relative z-10 w-[90%] sm:w-[24rem] p-6 bg-yellow-300 rounded-lg shadow-xl">
+        <form onSubmit={handleSubmit}>
+          <h3 className="text-2xl text-center text-black font-bold mb-2">Enter OTP</h3>
+          <p className="text-center text-black mb-6 text-sm">
+            We’ve sent a 4-digit code to your email. Please check your inbox.
+          </p>
+
+          <div className="flex justify-center mb-6">
+            {renderInput()}
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              disabled={loading || Object.values(otp).some(val => val === "")}
+              className={`${
+                loading ? 'cursor-not-allowed' : 'hover:bg-[#333]'
+              } bg-black text-yellow-400 font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2`}
+            >
+              {loading ? (
+                <>
+                  <span className="loader border-yellow-400 border-2 border-t-transparent rounded-full w-4 h-4 animate-spin"></span>
+                  Verifying...
+                </>
+              ) : (
+                'Verify'
+              )}
+            </button>
+          </div>
+
+          <div className="flex justify-center mt-4">
+            {count === 0 ? (
+              <span
+                className="text-black font-bold underline cursor-pointer"
+                onClick={handleResend}
+              >
+                Resend OTP
+              </span>
+            ) : (
+              <div className="flex items-center gap-2 text-black font-semibold">
+                <PiClockCountdownFill size={20} />
+                <span>{count}s</span>
+              </div>
+            )}
+          </div>
         </form>
-        </div>
+      </div>
     </div>
   )
 }
-
 
 export default UserNewPassOtp

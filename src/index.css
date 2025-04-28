@@ -1,10 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* body{
-    display: flex;
-    justify-content: center;
-} */
+
 @import url('https://fonts.googleapis.com/css2?family=Passion+One:wght@900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Rubik+Vinyl&display=swap');
 
@@ -12,4 +9,8 @@
     display: flex;
     justify-content: center;
    
+}
+
+body{
+    background-color: black;
 }
