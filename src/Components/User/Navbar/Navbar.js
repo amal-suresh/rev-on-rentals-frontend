@@ -41,11 +41,15 @@ function Navbar() {
           </h1>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Nav Links */}
         <ul
-          className={`md:static absolute left-0 w-full md:w-auto bg-black md:bg-transparent transition-all duration-300 ease-in-out flex flex-col md:flex-row items-center md:gap-8 gap-6 px-6 py-4 md:p-0 text-yellow-300 font-semibold z-40 ${
-            menuOpen ? 'top-[5rem] opacity-100' : 'top-[-500px] opacity-0 pointer-events-none'
-          }`}
+          className={`
+            flex flex-col md:flex-row items-center md:static absolute left-0 w-full md:w-auto 
+            bg-black md:bg-transparent text-yellow-300 font-semibold z-40 
+            transition-all duration-300 ease-in-out 
+            ${menuOpen ? 'top-[5rem] opacity-100' : 'top-[-500px] opacity-0 pointer-events-none'} 
+            md:opacity-100 md:pointer-events-auto md:top-auto md:gap-8 md:p-0 p-6 gap-6
+          `}
         >
           <li className="cursor-pointer hover:text-yellow-400" onClick={() => handleNavigate('/')}>Home</li>
           <li className="cursor-pointer hover:text-yellow-400" onClick={() => handleNavigate('/tariff')}>Tariff</li>
@@ -62,7 +66,7 @@ function Navbar() {
           )}
         </ul>
 
-        {/* Right Side: Login/Profile & Toggle */}
+        {/* Right Side: Login/Profile & Hamburger */}
         <div className="flex items-center gap-4">
           {!user.name ? (
             <button
@@ -80,7 +84,7 @@ function Navbar() {
             </button>
           )}
 
-          {/* Hamburger icon */}
+          {/* Hamburger Menu */}
           <div className="md:hidden">
             {!menuOpen ? (
               <GrMenu
