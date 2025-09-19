@@ -52,7 +52,7 @@ function PaymentSuccess() {
     return (
         <div className=''>
             <Navbar />
-            <div className='w-full  flex justify-center'>
+            <div className='w-full  flex justify-center overflow-scroll'>
                 <div className="bg-gray-100 h-full w-[60rem]">
                     <div className="bg-white p-6  md:mx-auto">
                         <svg viewBox="0 0 24 24" className="text-green-600 w-16 h-16 mx-auto mb-6">
