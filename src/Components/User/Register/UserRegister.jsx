@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import bckimage from '../../../images/loginBackground.png'
 import { toast } from 'react-hot-toast'
 import { checkEmialBeforeRegister } from '../../../config/clientEndPoints'
+import Navbar from '../Navbar/Navbar'
+import UserFooter from '../Footer/UserFooter'
 
 function UserRegister() {
 
@@ -91,52 +93,72 @@ function UserRegister() {
     }
 
     return (
-        <div className='h-screen flex items-center justify-center bg-[#FFD93B] max-w-[1500px]'>
-            <img src={bckimage} className='relative w-screen h-screen object-cover lg:object-contain' alt="..." />
-            <div className='absolute top-0 left-0 w-full h-full bg-black opacity-60 z-10'></div>
-            <div className="container mx-auto absolute z-50">
-                <div className="flex flex-col bg-yellow-300 rounded-xl mx-auto shadow-[0_35px_60px_15px_rgba(0,0,0,0.3)] overflow-hidden w-[21rem]">
-                    <div className="w-full py-5 px-4" >
-                        <h2 className="text-2xl text-center font-semibold mb-4">User Register</h2>
-                        <div className="grid grid-cols-2 gap-5">
-                            <input type="text" placeholder="First Name" className="border rounded-md border-gray-400 py-1 px-2" value={formValues.fname} onChange={handleChange} name="fname" />
-                            <input type="text" placeholder="Last Name" className="border rounded-md border-gray-400 py-1 px-2" value={formValues.lname} onChange={handleChange} name="lname" />
+        <div className='w-full min-h-screen bg-black flex flex-col justify-between relative'>
+            <Navbar />
+
+            {/* Background Image and overlay underneath the card */}
+            <div className='absolute inset-0 w-full h-full z-0'>
+                <img
+                    src={bckimage}
+                    className='w-full h-full object-cover'
+                    alt="Register Background"
+                />
+                <div className='absolute inset-0 bg-black opacity-75'></div>
+            </div>
+
+            {/* Register Card */}
+            <div className="relative z-10 flex-grow flex items-center justify-center py-20 mt-20">
+                <div className="container mx-auto flex flex-col items-center">
+                    <div className="flex flex-col bg-[#0B132B]/85 border border-[#1E293B] shadow-2xl backdrop-blur-md rounded-2xl w-[21rem] sm:w-[24rem] px-6 py-8">
+                        <h2 className="text-3xl text-center font-bold mb-6 text-white tracking-wider font-passion">USER REGISTER</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <input type="text" placeholder="First Name" className="bg-[#111C3A]/50 border border-neutral-700/60 rounded-md py-1.5 px-3 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all w-full" value={formValues.fname} onChange={handleChange} name="fname" />
+                                <p className='text-sm text-red-500 mt-1 font-semibold'>{formErrors.fname}</p>
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Last Name" className="bg-[#111C3A]/50 border border-neutral-700/60 rounded-md py-1.5 px-3 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all w-full" value={formValues.lname} onChange={handleChange} name="lname" />
+                                <p className='text-sm text-red-500 mt-1 font-semibold'>{formErrors.lname}</p>
+                            </div>
                         </div>
-                        <div className='flex justify-between'><p className='text-sm text-red-600'>{formErrors.fname}</p><p className='text-sm text-red-600'>{formErrors.lname}</p></div>
-                        <div className="mt-5">
-                            <input type="text" placeholder="Email" className="border rounded-md border-gray-400 py-1 px-2 w-full" value={formValues.email} onChange={handleChange} name="email" />
+                        <div className="mt-4">
+                            <input type="text" placeholder="Email" className="bg-[#111C3A]/50 border border-neutral-700/60 rounded-md py-1.5 px-3 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all w-full" value={formValues.email} onChange={handleChange} name="email" />
+                            <p className='text-sm text-red-500 mt-1 font-semibold'>{formErrors.email}</p>
                         </div>
-                        <p className='text-sm text-red-600'>{formErrors.email}</p>
-                        <div className="mt-5">
-                            <input type="number" placeholder="Mobile Number" className="border rounded-md border-gray-400 py-1 px-2 w-full" value={formValues.mobile} onChange={handleChange} name="mobile" />
+                        <div className="mt-4">
+                            <input type="number" placeholder="Mobile Number" className="bg-[#111C3A]/50 border border-neutral-700/60 rounded-md py-1.5 px-3 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" value={formValues.mobile} onChange={handleChange} name="mobile" />
+                            <p className='text-sm text-red-500 mt-1 font-semibold'>{formErrors.mobile}</p>
                         </div>
-                        <p className='text-sm text-red-600'>{formErrors.mobile}</p>
-                        <div className="mt-5">
-                            <input type="password" placeholder="Password" className="border rounded-md border-gray-400 py-1 px-2 w-full" value={formValues.password} onChange={handleChange} name="password" />
+                        <div className="mt-4">
+                            <input type="password" placeholder="Password" className="bg-[#111C3A]/50 border border-neutral-700/60 rounded-md py-1.5 px-3 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all w-full" value={formValues.password} onChange={handleChange} name="password" />
+                            <p className='text-sm text-red-500 mt-1 font-semibold'>{formErrors.password}</p>
                         </div>
-                        <p className='text-sm text-red-600'>{formErrors.password}</p>
-                        <div className="mt-5">
-                            <input type="password" placeholder="Confirm Password" className="border rounded-md border-gray-400 py-1 px-2 w-full" value={formValues.confirmPassword} onChange={handleChange} name="confirmPassword" />
+                        <div className="mt-4">
+                            <input type="password" placeholder="Confirm Password" className="bg-[#111C3A]/50 border border-neutral-700/60 rounded-md py-1.5 px-3 text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all w-full" value={formValues.confirmPassword} onChange={handleChange} name="confirmPassword" />
+                            <p className='text-sm text-red-500 mt-1 font-semibold'>{formErrors.confirmPassword}</p>
                         </div>
-                        <p className='text-sm text-red-600'>{formErrors.confirmPassword}</p>
-                        <div className="mt-5">
-                            <button type='submit' disabled={loading} onClick={handleSubmit} className={`w-full py-2 text-center font-bold text-md rounded-md ${loading ? 'bg-gray-500 text-white' : 'bg-black text-white hover:bg-gray-900 hover:text-yellow-400'}`}>
-                                {loading ? 'Registering...' : 'Register'}
+                        <div className="mt-6">
+                            <button type='submit' disabled={loading} onClick={handleSubmit} className={`w-full py-2.5 text-center font-extrabold text-md rounded-md shadow-lg transition-all duration-200 ${loading ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-400/10 hover:shadow-yellow-400/20 transform hover:-translate-y-0.5'}`}>
+                                {loading ? 'Registering...' : 'REGISTER'}
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <div className="mt-4 text-center">
-                    <p className='text-white'>Already Have Account ?
-                        <span
-                            onClick={() => navigate('/login')}
-                            className='text-gray-200 hover:text-yellow-300 cursor-pointer ml-2 underline'
-                        >
-                            Login Now
-                        </span>
-                    </p>
+                    <div className="mt-6 text-center">
+                        <p className='text-gray-300 text-sm font-medium'>
+                            Already Have Account?
+                            <span
+                                onClick={() => navigate('/login')}
+                                className='text-yellow-400 hover:text-yellow-300 font-semibold cursor-pointer ml-2 underline transition-colors duration-200'
+                            >
+                                Login Now
+                            </span>
+                        </p>
+                    </div>
                 </div>
+            </div>
+            <div className="relative z-10 w-full">
+                <UserFooter />
             </div>
         </div>
     )

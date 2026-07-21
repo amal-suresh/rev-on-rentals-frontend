@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import SideBar from '../AdminSideBar/Sidebar'
-import { GiHamburgerMenu } from 'react-icons/gi'
-import { AiOutlineClose } from 'react-icons/ai'
+import AdminLoader from '../AdminSideBar/AdminLoader'
 import Axios from 'axios'
 import { adminApi } from '../../../config/api'
 import { toast } from 'react-hot-toast'
-import {io} from 'socket.io-client'
+import { io } from 'socket.io-client'
 import { socketApi } from '../../../config/api'
-import {GrSend} from 'react-icons/gr'
+import { GrSend } from 'react-icons/gr'
 
 function AdminChats() {
   const Socket = io.connect(socketApi)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(() => localStorage.getItem('adminSidebarOpen') === 'true')
+  const [loading, setLoading] = useState(true)
+
+  const toggleSidebar = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    localStorage.setItem('adminSidebarOpen', String(nextState));
+  };
   const [chats, setChats] = useState([])
   const [individualChat, setIndividualChat] = useState([])
   const [textToSent, setTextToSent] = useState('')
@@ -24,6 +30,8 @@ function AdminChats() {
       }
     } catch (error) {
       console.log(error.message);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -48,106 +56,103 @@ function AdminChats() {
   }
 
   const sendMessage = async () => {
-    
-      if(textToSent!==''){
-      const userId= individualChat[0]?.user
-      console.log(userId,"user id admin side");
+
+    if (textToSent !== '') {
+      const userId = individualChat[0]?.user
+      console.log(userId, "user id admin side");
       const newMessage = {
-        user:userId,
+        user: userId,
         text: textToSent,
-        sender:"Admin",
+        sender: "Admin",
       };
       await Socket.emit('send_message', newMessage);
       setTextToSent('')
-      }else{
-        toast.success("message box can't be null")
-      }
+    } else {
+      toast.success("message box can't be null")
+    }
 
-   
+
   }
   useEffect(() => {
     fetchChats()
   }, [])
 
   useEffect(() => {
-   
-     Socket.on('receive_message', (data) => {
-     
+
+    Socket.on('receive_message', (data) => {
+
       setIndividualChat((prevMessages) => [...prevMessages, data]);
     });
-   return()=>{
-    Socket.disconnect()
-  }
+    return () => {
+      Socket.disconnect()
+    }
 
-  }, [individualChat,Socket]);
+  }, [individualChat, Socket]);
 
 
 
-  
+
 
   return (
-    <>
-      <div className={`mx-auto flex w-full h-full ${!isOpen ? 'justify-start' : 'justify-between'} `}>
-        <div className={` h-full${!isOpen ? 'none' : 'block'}`}>
-          <SideBar isOpen={isOpen} />
-        </div>
-        <div className={`absolute flex ${!isOpen ? 'justify-start' : 'justify-end'}z-1   w-[220px]`}>
-          {!isOpen ? <GiHamburgerMenu size={35} onClick={() => setIsOpen(!isOpen)} /> : <AiOutlineClose size={35} onClick={() => setIsOpen(!isOpen)} />}
-        </div>
-        <div className={`text-4xl text-center ${!isOpen ? 'w-full' : 'w-[83%]'} bg-red-800 `}>
-          <div className='w-full bg-yellow-300 '>
-            <h1 className='p-2 text-2xl font-semibold'>Chats</h1>
+    <div className="mx-auto flex w-full min-h-screen bg-[#0A0F1D] text-slate-100">
+      <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />
+      <div className={`text-4xl text-center ${!isOpen ? 'pl-[72px]' : 'pl-[240px]'} w-full transition-all duration-350`}>
+        <div className='w-full'>
+          <h1 className='p-4 text-2xl font-bold bg-[#0F172A] border-b border-slate-800 text-left pl-14 text-slate-100'>Chats</h1>
 
-            <div className='px-5 h-[27rem] w-full bg-white flex '>
-              <div className='w-[30%] bg-gray-200 h-full overflow-y-scroll'>
-                {chats && chats.map((chat) => (
-                  <div key={chat.userDetails._id} onClick={() => { fetchIndividualChat(chat.userDetails._id) }} className='w-full flex bg-slate-400 items-center px-2 border '>
-                    <div className=''>
-                      <img className='w-16 h-16 rounded-full' src={`${chat.userDetails.image}`} alt="" />
-                    </div>
-                    <div className='flex flex-col w-[90%]'>
-                      <div className='flex flex-row justify-between w-full px-3'>
-                        <p className='text-[19px] font-bold'>{chat.userDetails.fname} {chat.userDetails.lname}</p>
-                        <p className='text-[10px]'>{chat.time}</p>
+          <div className='p-6 min-h-[calc(100vh-4rem)] bg-[#0B132B]/50'>
+            {loading ? (
+              <AdminLoader />
+            ) : (
+              <div className='overflow-hidden rounded-xl shadow-lg border border-slate-800 bg-[#111C3A] flex h-[34rem] w-full'>
+                <div className='w-[30%] bg-[#0F172A] h-full overflow-y-auto border-r border-[#1C2541]'>
+                  {chats && chats.map((chat) => (
+                    <div key={chat.userDetails._id} onClick={() => { fetchIndividualChat(chat.userDetails._id) }} className='w-full flex bg-[#111C3A] hover:bg-[#1E2E5D]/30 items-center px-4 py-3 border-b border-[#1C2541]/50 cursor-pointer transition-colors duration-150'>
+                      <div className='flex-shrink-0'>
+                        <img className='w-12 h-12 rounded-full object-cover border border-slate-800' src={`${chat.userDetails.image}`} alt="" />
                       </div>
-                      <div className='px-4 flex justify-start'>
-                        <p className='text-[15px] text-start'>{chat.text}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className='w-[70%] bg-gray-700 h-full '>
-                <div className='w-full bg-gray-200 h-full px-3 py-2 overflow-y-scroll'>
-                  {individualChat && individualChat.map((message) =>
-                  (
-                    <div className={`w-full flex  ${message.sender === "Admin" ? 'justify-end' : 'justify-start'}   pt-1`}>
-                      <div className={`${message.sender === 'Admin' ? ' bg-slate-300 rounded-l-md rounded-br-md' : '  bg-slate-100 rounded-r-md rounded-bl-md '} h-auto ml-2 px-3 flex flex-col items-center `}>
-                        <p className='text-start text-[20px]'>{message.text}</p>
-
-                        <div className='flex justify-end w-full'>
-                          <p className='text-[8px]'>{message.time}</p>
+                      <div className='flex flex-col w-[80%] pl-3'>
+                        <div className='flex flex-row justify-between w-full items-baseline'>
+                          <p className='text-sm font-semibold text-slate-200 truncate'>{chat.userDetails.fname} {chat.userDetails.lname}</p>
+                          <p className='text-[9px] text-slate-500 font-medium whitespace-nowrap'>{chat.time}</p>
                         </div>
-
+                        <div className='flex justify-start w-full mt-1'>
+                          <p className='text-xs text-slate-400 text-start truncate w-full'>{chat.text}</p>
+                        </div>
                       </div>
                     </div>
-                  )
-                  )}
+                  ))}
                 </div>
-                <div className=' bottom-0 end-0 w-full h-16'>
-                  <div className=' my-1 flex justify-center items-center py-2 '>
-                    <div className='border border-black flex flex-row justify-between'>
-                      <input onChange={handleOnChange} value={textToSent} className='w-full text-lg my-2 px-3 outline-none rounded-l-lg ' type="text" placeholder='Type a message' />
-                      <button onClick={sendMessage} className='ml-6 text-[20px] font-bold bg-yellow-300 hover:bg-yellow-400 px-4 py-2'><GrSend/></button>  
+                <div className='w-[70%] bg-[#111C3A] h-full flex flex-col'>
+                  <div className='flex-1 bg-[#0A0F1D]/40 px-6 py-6 overflow-y-auto space-y-4'>
+                    {individualChat && individualChat.map((message) =>
+                    (
+                      <div key={message._id || Math.random()} className={`w-full flex ${message.sender === "Admin" ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`${message.sender === 'Admin' ? 'bg-sky-600 text-white rounded-2xl rounded-tr-none' : 'bg-[#0B132B] border border-slate-800 text-slate-205 rounded-2xl rounded-tl-none'} h-auto px-4 py-2.5 max-w-[70%] shadow-md`}>
+                          <p className='text-start text-sm font-medium leading-relaxed'>{message.text}</p>
+
+                          <div className='flex justify-end w-full mt-1'>
+                            <p className='text-[8px] text-slate-440 font-medium'>{message.time}</p>
+                          </div>
+
+                        </div>
+                      </div>
+                    )
+                    )}
+                  </div>
+                  <div className='p-3 bg-[#0F172A] border-t border-[#1C2541] flex items-center justify-between'>
+                    <div className='flex flex-row items-center w-full gap-3'>
+                      <input onChange={handleOnChange} value={textToSent} className='w-full bg-[#0B132B] border border-slate-800 text-sm rounded-lg py-2.5 px-4 text-slate-200 placeholder-slate-500 outline-none focus:border-sky-505 transition-colors duration-150' type="text" placeholder='Type a message' />
+                      <button onClick={sendMessage} className='bg-sky-600 hover:bg-sky-700 text-white p-2.5 rounded-lg font-semibold shadow-md transition-colors duration-150 flex items-center justify-center'><GrSend size={18} /></button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 export default AdminChats

@@ -27,7 +27,7 @@ const Offers = () => {
   }, [])
 
   return (
-    <div>
+    <div className='w-full min-h-screen bg-black flex flex-col justify-between relative'>
       <Navbar />
       <h1 className='md:block hidden font-bold absolute text-[2rem] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-yellow-400 drop-shadow-lg font-rubik-vinyl [word-spacing:15px]'>
         REV-ON Offers Check it out
@@ -38,8 +38,8 @@ const Offers = () => {
 
       <img src={bikeImg} alt="bike img" />
 
-      <div className='bg-black'>
-        <div className='grid py-5 md:py-8 grid-cols-1 px- sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 max-w-[1500px]'>
+      <div className='bg-black flex-grow'>
+        <div className='grid py-5 md:py-8 grid-cols-1 px-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 max-w-[1500px] mx-auto'>
           {coupons && coupons.map((coupon, i) => (
             <motion.div
               key={coupon._id}

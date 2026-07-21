@@ -205,11 +205,11 @@ function UserViewBikes() {
 
 
   return (
-    <div className=' max-w-[1600px] bg-black'>
+    <div className='w-full min-h-screen bg-black flex flex-col'>
       <Navbar />
       <div className='flex justify-center  items-center py-3 mt-20'>
 
-        <div className='flex flex-row justify-between  bg-white rounded-lg w-[95%]'>
+        <div className='flex flex-row justify-between bg-white rounded-lg w-[95%] max-w-[1500px] mx-auto'>
           <div className="flex flex-row mb-1 sm:mb-0 h-[54px] py-2 px-1  ">
             <div className="relative">
               <select
@@ -298,7 +298,7 @@ function UserViewBikes() {
       </div>
 
       <div className='w-full flex justify-center mb-3'>
-        <div className='bg-yellow-900-400 pl-2 flex rounded-xl flex-col md:flex-row bg-white w-[95%] '>
+        <div className='bg-yellow-900-400 pl-2 flex rounded-xl flex-col md:flex-row bg-white w-[95%] max-w-[1500px] mx-auto'>
 
 
           <div className='flex justify-evenly w-full md:w-[50%] items-center my-2 '>
@@ -438,7 +438,7 @@ function UserViewBikes() {
           )}
         </div>
       </div>
-      <div className='max-w-[1600px] bg-gray-500 flex justify-center'>
+      <div className='w-full bg-black flex justify-center py-4'>
         {totalPages > 0 &&
           [...Array(totalPages)].map((val, index) => (
             <button

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import SideBar from '../AdminSideBar/Sidebar'
-import { GiHamburgerMenu } from 'react-icons/gi'
-import { AiOutlineClose } from 'react-icons/ai'
+import AdminLoader from '../AdminSideBar/AdminLoader'
+import { FiInbox } from 'react-icons/fi'
 import Axios from 'axios'
 import { adminApi } from '../../../config/api'
 import { useNavigate } from 'react-router-dom'
@@ -11,132 +11,144 @@ import Swal from 'sweetalert2'
 
 
 function PartnerVerified() {
-    const navigate=useNavigate()
-    const [isOpen, setIsOpen] = useState(false)
-  
-    const [requests, setRequests] = useState([])
-    
-    const findRequest = async () => {
-      try {
-        const response = await Axios.get(`${adminApi}/partnerVerifiedList`)
-        if (response.data.success) {
-          setRequests(response.data.data)
-        }
-      } catch (error) {
-  
-      }
-    }
+  const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useState(() => localStorage.getItem('adminSidebarOpen') === 'true')
+  const [loading, setLoading] = useState(true)
 
-    const statusAlert=(id)=>{
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#32CD32',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Change Status'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          handleStatus(id)
-        }
-      })
-  
-    }
-  
+  const toggleSidebar = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    localStorage.setItem('adminSidebarOpen', String(nextState));
+  };
 
-  
-    const handleStatus =async(id)=>{
-      try {
-        const response = await Axios.put(`${adminApi}/changeStatus?id=${id}`)
-        if(response.data.success){
-          const updatedRequest= response.data.updatedrequest
-          const updatedDocumentIdString = updatedRequest._id.toString();
-          const updatedIndex = requests.findIndex(request=>request._id.toString()===updatedDocumentIdString)
-          const updatedDocuments=[...requests]
-          updatedDocuments[updatedIndex]=updatedRequest
-          setRequests(updatedDocuments)
-          toast.success(response.data.message)
-        }else{
-          toast.error(response.data.message)
-        } 
-      } catch (error ) { 
+  const [requests, setRequests] = useState([])
+
+  const findRequest = async () => {
+    try {
+      const response = await Axios.get(`${adminApi}/partnerVerifiedList`)
+      if (response.data.success) {
+        setRequests(response.data.data)
       }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
-  
-    const viewPartner = (data)=>{
-  
-        navigate('/admin/partnerSingleView',{state:{data}})
-        
-        // const response = await Axios.get(`${adminApi}/viewPartner?id=${id}`)
-        // if(response.data.success){
-        //   alert("success")
-        // }
+  }
+
+  const statusAlert = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#32CD32',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Change Status'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleStatus(id)
+      }
+    })
+
+  }
+
+
+
+  const handleStatus = async (id) => {
+    try {
+      const response = await Axios.put(`${adminApi}/changeStatus?id=${id}`)
+      if (response.data.success) {
+        const updatedRequest = response.data.updatedrequest
+        const updatedDocumentIdString = updatedRequest._id.toString();
+        const updatedIndex = requests.findIndex(request => request._id.toString() === updatedDocumentIdString)
+        const updatedDocuments = [...requests]
+        updatedDocuments[updatedIndex] = updatedRequest
+        setRequests(updatedDocuments)
+        toast.success(response.data.message)
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
     }
-    useEffect(() => {
-      findRequest()
-    }, [])
-  
-    return (
-      <>
-        <div className={`mx-auto flex w-full ${!isOpen ? 'justify-start' : 'justify-between'} `}>
-          <div className={`${!isOpen ? 'none' : 'block'}`}>
-            <SideBar isOpen={isOpen} />
-          </div>
-          <div className={`absolute flex ${!isOpen ? 'justify-start' : 'justify-end'}z-1  bg-yellow-300 w-[220px]`}>
-            {!isOpen ? <GiHamburgerMenu size={35} onClick={() => setIsOpen(!isOpen)} /> : <AiOutlineClose size={35} onClick={() => setIsOpen(!isOpen)} />}
-          </div>
-          <div className={`text-4xl text-center ${!isOpen ? 'w-full' : 'w-[83%]'} bg-red-800 `}>
-            <div className='w-full bg-yellow-300 '>
-              <h1 className='p-2 text-2xl font-semibold'>Partners</h1>
-  
-              <div className='p-5 h-screen bg-yellow-200'>
-                
-  
-                {requests && 
-                <div className='overflow-auto rounded-s-lg shadow '>
-                  <table className='w-full'>
-                    <thead className='bg-gray-50 border-b-2 border-gray-200'>
-                      <tr>
-                        <th className='w-24 p-3 text-sm font-semibold tracking-wide text-left'>Fname</th>
-                        <th className='w-24 p-3 text-sm font-semibold tracking-wide text-left'>Lname</th>
-                        <th className='p-3 text-sm font-semibold tracking-wide text-left'>Email</th>
-                        <th className='w-24 p-3 text-sm font-semibold tracking-wide text-left'>Status</th>
-                        <th className='w-24 p-3 text-sm font-semibold tracking-wide text-left'>View</th>
-  
-                      </tr>
-                    </thead>
-                    <tbody className='divide-y divide-gray-100'>
-                      {requests.map((partner)=>{
-                        return(
-                        <tr key={partner._id}>
-                          <td className='p-3 whitespace-nowrap text-sm text-gray-700 text-left'>{partner.fname}</td>
-                          <td className='p-3 whitespace-nowrap text-sm text-gray-700 text-left'>{partner.lname}</td>
-                          <td className='p-3 whitespace-nowrap text-sm text-gray-700 text-left'>{partner.email}</td>  
-                          {partner.status?<td className='p-3 whitespace-nowrap text-sm text-gray-700 text-left'><button onClick={()=>statusAlert(partner._id)} className='bg-red-600 rounded-sm p-1 text-white hover:bg-red-700 text-sm'>Block</button></td>:<td className='p-3 whitespace-nowrap text-sm text-gray-700 text-left'><button onClick={()=>statusAlert(partner._id)} className='bg-green-600 rounded-sm p-1 text-white hover:bg-green-700 text-sm'>Unblock</button></td>}
-                          <td className='p-3 whitespace-nowrap text-sm text-gray-700 text-left'><button onClick={()=>viewPartner(partner)} className='bg-blue-600 rounded-sm p-1 text-white hover:bg-blue-700 text-sm'>View</button></td>
-                          
-                         </tr>
-  
-                        )
-  
-                      })}
-                      
-                    
-                    </tbody>
-  
-  
-                  </table>
-                </div>
-                }
-  
-              </div>
-            </div>
+  }
+
+  const viewPartner = (data) => {
+
+    navigate('/admin/partnerSingleView', { state: { data } })
+
+    // const response = await Axios.get(`${adminApi}/viewPartner?id=${id}`)
+    // if(response.data.success){
+    //   alert("success")
+    // }
+  }
+  useEffect(() => {
+    findRequest()
+  }, [])
+
+  return (
+    <div className="mx-auto flex w-full min-h-screen bg-[#0A0F1D] text-slate-100">
+      <SideBar isOpen={isOpen} setIsOpen={setIsOpen} />
+      <div className={`text-4xl text-center ${!isOpen ? 'pl-[72px]' : 'pl-[240px]'} w-full transition-all duration-300`}>
+        <div className='w-full'>
+          <h1 className='p-4 text-2xl font-bold bg-[#0F172A] border-b border-slate-800 text-left pl-14 text-slate-100'>Partners</h1>
+
+          <div className='p-6 min-h-[calc(100vh-4rem)] bg-[#0B132B]/50'>
+
+            {loading ? (
+              <AdminLoader />
+            ) : (
+              requests && (
+                requests.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 px-4 bg-[#111C3A] rounded-xl border border-slate-800 text-center shadow-lg w-full">
+                    <FiInbox size={48} className="text-slate-500 mb-3 animate-pulse" />
+                    <p className="text-slate-300 text-base font-bold">No data yet</p>
+                    <p className="text-slate-500 text-xs mt-1">There are currently no verified partners to display.</p>
+                  </div>
+                ) : (
+                  <div className='overflow-auto rounded-xl shadow-lg border border-slate-800 bg-[#111C3A]'>
+                    <table className='w-full'>
+                      <thead className='bg-[#0F172A] border-b border-slate-850'>
+                        <tr>
+                          <th className='p-4 text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 text-left'>First Name</th>
+                          <th className='p-4 text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 text-left'>Last Name</th>
+                          <th className='p-4 text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 text-left'>Email</th>
+                          <th className='p-4 text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 text-left'>Status</th>
+                          <th className='p-4 text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 text-left'>View</th>
+
+                        </tr>
+                      </thead>
+                      <tbody className='divide-y divide-slate-800 bg-[#111C3A]/50'>
+                        {requests.map((partner) => {
+                          return (
+                            <tr key={partner._id} className='hover:bg-[#1C2541]/40 transition-colors duration-150'>
+                              <td className='p-4 whitespace-nowrap text-sm text-slate-200 text-left'>{partner.fname}</td>
+                              <td className='p-4 whitespace-nowrap text-sm text-slate-200 text-left'>{partner.lname}</td>
+                              <td className='p-4 whitespace-nowrap text-sm text-slate-200 text-left'>{partner.email}</td>
+                              {partner.status ? <td className='p-4 whitespace-nowrap text-sm text-slate-200 text-left'><button onClick={() => statusAlert(partner._id)} className='bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-md transition-all duration-150'>Block</button></td> : <td className='p-4 whitespace-nowrap text-sm text-slate-200 text-left'><button onClick={() => statusAlert(partner._id)} className='bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-md transition-all duration-150'>Unblock</button></td>}
+                              <td className='p-4 whitespace-nowrap text-sm text-slate-200 text-left'><button onClick={() => viewPartner(partner)} className='bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-md transition-all duration-150'>View</button></td>
+
+                            </tr>
+
+                          )
+
+                        })}
+
+
+                      </tbody>
+
+
+                    </table>
+                  </div>
+                )
+              )
+            )}
+
           </div>
         </div>
-      </>
-  
-    )
-  }
+      </div>
+    </div>
+  )
+}
 
 export default PartnerVerified

@@ -31,9 +31,9 @@ function Tariff() {
   }, [])
 
   return (
-    <div className='-z-0 bg-black'>
+    <div className='w-full min-h-screen bg-black flex flex-col justify-between'>
       <Navbar />
-      <div className='w-full flex justify-center  mt-20'>
+      <div className='w-full flex justify-center mt-20 flex-grow'>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-[1500px]'>
           {loadingTariff ? (
             <div className='flex justify-center items-center w-full h-[300px]'>

@@ -11,6 +11,10 @@
    
 }
 
+html {
+    scrollbar-gutter: stable;
+}
+
 body{
     background-color: black;
 }

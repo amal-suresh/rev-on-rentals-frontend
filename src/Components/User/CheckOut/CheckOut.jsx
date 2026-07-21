@@ -30,39 +30,39 @@ function CheckOut() {
     const [grandTotal, setGrandTotal] = useState(0)
     const [pickDropPoints, setPickDropPoints] = useState({ pickUpPoint: "", dropPoint: "" })
 
-    const [couponAppiled,setCouponApplied]=useState(false)
-    const [discount,setDiscount]=useState(0)
-    const [coupon,setCoupon]=useState("")
+    const [couponAppiled, setCouponApplied] = useState(false)
+    const [discount, setDiscount] = useState(0)
+    const [coupon, setCoupon] = useState("")
 
-    const applyCoupon=async()=>{
+    const applyCoupon = async () => {
         try {
-            if(!coupon){
+            if (!coupon) {
                 toast.error('enter coupon')
                 return
             }
             const token = user.token
-            let data={
+            let data = {
                 grandTotal,
                 coupon
             }
-            const responce=await axios.post(`${userApi}applyCoupon`,data,{
+            const responce = await axios.post(`${userApi}applyCoupon`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-           if(responce.data.success){
-            setCouponApplied(true)
-            setDiscount(responce.data.data.discount)
-            setGrandTotal(responce.data.data.distotal)
-            toast.success("coupon appiled")
-           }else{
-            toast.error(responce.data.data.message)
-           }
-            
+            if (responce.data.success) {
+                setCouponApplied(true)
+                setDiscount(responce.data.data.discount)
+                setGrandTotal(responce.data.data.distotal)
+                toast.success("coupon appiled")
+            } else {
+                toast.error(responce.data.data.message)
+            }
+
         } catch (error) {
             console.log(error.message);
-            
+
         }
     }
 
@@ -94,7 +94,7 @@ function CheckOut() {
         }
     }
 
-   
+
 
     useEffect(() => {
         findBikeDetails()
@@ -123,10 +123,10 @@ function CheckOut() {
         );
         const totalHours = dropDateTime.diff(pickUpDateTime, 'hours');
         setHours(totalHours)
-        if(totalHours<24){
-            return rentPerHour*24
-        }else{
-        return totalHours * rentPerHour
+        if (totalHours < 24) {
+            return rentPerHour * 24
+        } else {
+            return totalHours * rentPerHour
         }
     }
 
@@ -143,7 +143,7 @@ function CheckOut() {
 
     const initPayment = (order) => {
         var options = {
-            key: "rzp_test_lJniWPD4KnfBRI",
+            key: process.env.REACT_APP_RAZORPAY_KEY_ID ,
             currency: "INR",
             name: "rev-on-rentals",
             description: "for testing",
@@ -162,7 +162,7 @@ function CheckOut() {
 
     const createBooking = async (details) => {
         const token = user.token
-        let dataForBooking = { ...details, ...pickDropPoints, grandTotal, total, helmet, rent,coupon,discount, hours, ...bookingDetails, partnerId: bikeDetails.partnerId._id }
+        let dataForBooking = { ...details, ...pickDropPoints, grandTotal, total, helmet, rent, coupon, discount, hours, ...bookingDetails, partnerId: bikeDetails.partnerId._id }
         const response = await axios.post(`${userApi}verifyPayment`, dataForBooking, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -180,8 +180,8 @@ function CheckOut() {
 
     }
 
-    const removeCoupon=()=>{
-        setGrandTotal(discount+grandTotal)
+    const removeCoupon = () => {
+        setGrandTotal(discount + grandTotal)
         setDiscount(0)
         setCouponApplied(false)
         toast.error("coupon removed")
@@ -189,10 +189,10 @@ function CheckOut() {
     }
 
     return (
-        <div className='w-full max-w-[1600px]'>
+        <div className='w-full min-h-screen bg-black flex flex-col'>
             <Navbar />
-            <div className='w-full h-screen pt-5'>
-                <div className='flex  flex-col md:flex-row py-10 justify-center items-center'>
+            <div className='w-full flex-grow pt-20 flex flex-col justify-between'>
+                <div className='flex flex-col md:flex-row py-10 justify-center items-center flex-grow'>
                     <div className='max-w-[750px] md:h-[24rem] p-2 bg-slate-100 w-[95%] rounded-lg mb-3 shadow-2xl border-2'>
                         <p className='text-center text-2xl font-bold py-3'>Booking summery</p>
                         <hr className='' />
@@ -322,8 +322,8 @@ function CheckOut() {
                             <p className='px-2'>{grandTotal}</p>
                         </div>
                         <div className='flex flex-row justify-between py-2 bg-black rounded-md mt-2'>
-                            <input className='w-[15rem] ml-2 text-black placeholder:text-black p-1 rounded-md bg-slate-400' type="text" name="code" onChange={handleCode} value={coupon}  placeholder='Enter Coupon Code' />
-                            {couponAppiled?<button onClick={removeCoupon} className='mr-2 text-yellow-400 px-2 hover:text-yellow-300'>Remove</button>:<button onClick={applyCoupon} className='mr-2 text-yellow-400 px-2 hover:text-yellow-300'>Apply</button>}
+                            <input className='w-[15rem] ml-2 text-black placeholder:text-black p-1 rounded-md bg-slate-400' type="text" name="code" onChange={handleCode} value={coupon} placeholder='Enter Coupon Code' />
+                            {couponAppiled ? <button onClick={removeCoupon} className='mr-2 text-yellow-400 px-2 hover:text-yellow-300'>Remove</button> : <button onClick={applyCoupon} className='mr-2 text-yellow-400 px-2 hover:text-yellow-300'>Apply</button>}
 
                         </div>
                         <div className='mt-5 flex justify-center'>
@@ -339,8 +339,8 @@ function CheckOut() {
                         {reviews && reviews.map((review) => (
                             <div key={review._id} className='min-w-[300px] h-[180px] max-w-[350px] p-3 rounded-md bg-slate-200'>
                                 <div className='w-full flex'>
-                                    <img className='w-14 h-14 bg-black rounded-full' src={review.user.image} alt='userProfile'/>
-                                    
+                                    <img className='w-14 h-14 bg-black rounded-full' src={review.user.image} alt='userProfile' />
+
                                     <div className='flex justify-start flex-col'>
                                         <div className='text-center w-full ml-4'>
                                             {[1, 2, 3, 4, 5].map((star) => (
@@ -371,12 +371,8 @@ function CheckOut() {
 
 
                 </div>
-                <div>
-                    <UserFooter />
-                </div>
-
+                <UserFooter />
             </div>
-
         </div>
     )
 }

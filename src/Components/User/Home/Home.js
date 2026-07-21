@@ -16,6 +16,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import WhyChooseUs from './WhyChooseUs'
 import HowItWorks from './HowItWorks'
 import CustomerTestimonials from './CustomerTestimonials'
+import FAQ from './FAQ'
+import BrandCarousel from './BrandCarousel'
 
 function Home() {
   const Socket = io.connect(socketApi)
@@ -100,26 +102,29 @@ function Home() {
   }, [user])
 
   return (
-    <div className="flex flex-col max-w-[1600px]">
+    <div className="flex flex-col w-full min-h-screen bg-black">
       <Navbar />
 
       {/* Hero Section */}
       <div
-        className="md:justify-start bg-cover bg-no-repeat bg-center h-[600px] w-full"
+        className="bg-cover bg-no-repeat bg-center h-[600px] w-full flex flex-col justify-center items-center text-center px-4"
         style={{ backgroundImage: `url(${bikeImg})` }}
       >
-        <h1 className="text-yellow-400 mt-[12rem] ml-6 drop-shadow-lg text-[3rem] font-bold font-rubik-vinyl">
+        <h1 className="text-yellow-400 drop-shadow-lg text-[3rem] font-bold font-rubik-vinyl mb-6">
           Plan Your Next Ride Now
         </h1>
-        <div className="w-[83%] flex md:pl-[18%] pl-[35%]">
+        <div>
           <button
             onClick={() => navigate('/viewBikes')}
-            className="bg-black font-bold text-[1rem] px-4 py-3 cursor-pointer hover:border border-yellow-400 rounded-sm text-white"
+            className="bg-black font-bold text-[1rem] px-8 py-3 cursor-pointer border border-transparent hover:border-yellow-400 rounded-sm text-white transition-all duration-300"
           >
             BOOK NOW
           </button>
         </div>
       </div>
+
+      {/* Brand Carousel */}
+      <BrandCarousel />
 
       {/* Fleet Section */}
       <div className="bg-black">
@@ -132,7 +137,7 @@ function Home() {
             <AiOutlineLoading3Quarters className="animate-spin text-yellow-400 text-3xl" />
           </div>
         ) : (
-          <div className="grid py-5 md:py-8 grid-cols-1 px-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-[1500px]">
+          <div className="grid py-5 md:py-8 grid-cols-1 px-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-[1500px] mx-auto">
             {bikes.map((bike, i) => (
               <motion.div
                 key={bike._id}
@@ -197,9 +202,8 @@ function Home() {
                     className={`w-full flex ${msg.sender === 'User' ? 'justify-end' : 'justify-start'} pt-1`}
                   >
                     <div
-                      className={`ml-2 min-w-[5rem] bg-slate-300 px-2 py-1 flex flex-col ${
-                        msg.sender === 'Admin' ? 'rounded-r-md rounded-bl-md' : 'rounded-l-md rounded-br-md'
-                      }`}
+                      className={`ml-2 min-w-[5rem] bg-slate-300 px-2 py-1 flex flex-col ${msg.sender === 'Admin' ? 'rounded-r-md rounded-bl-md' : 'rounded-l-md rounded-br-md'
+                        }`}
                     >
                       <p className="text-start text-[15px]">{msg.text}</p>
                       <div className="flex justify-end w-full">
@@ -245,6 +249,7 @@ function Home() {
       <WhyChooseUs />
       <HowItWorks />
       <CustomerTestimonials />
+      <FAQ />
       <UserFooter />
     </div>
   )

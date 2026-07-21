@@ -134,11 +134,11 @@ function UserProfile() {
     }
 
     return (
-        <div className='flex flex-col max-w[1600px] h-full'>
+        <div className='flex flex-col w-full h-full bg-black min-h-screen'>
 
             <Navbar />
 
-            <div className='bg-yellow-200  flex justify-center flex-col md:flex-row  p-5 h-full mt-20'>
+            <div className='bg-yellow-200  flex justify-center flex-col md:flex-row  p-5 h-full mt-20 max-w-[1500px] mx-auto w-[95%] rounded-2xl shadow-xl flex-grow mb-8'>
 
                 <div className=' w-full md:w-[30%] '>
                     <div className="flex items-center justify-center">
@@ -301,9 +301,7 @@ function UserProfile() {
                 }
             </div>
 
-            <div>
-                <UserFooter />
-            </div>
+            <UserFooter />
         </div>
     )
 }
